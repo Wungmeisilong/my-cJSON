@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "Linux (WSL)",
+            "includePath": [
+                "/usr/include/c++/13",//这是C++标准库的路径
+                "/usr/include/x86_64-linux-gnu/c++/13",//这是x86_64架构的C++标准库路径
+                "/usr/include/c++/13/backward",//这是C++标准库的向后兼容路径
+                "/usr/lib/gcc/x86_64-linux-gnu/13/include",//这是GCC的头文件路径
+                "/usr/local/include",//这是本地安装的头文件路径
+                "/usr/include/x86_64-linux-gnu",//这是x86_64架构的头文件路径
+                "/usr/include",//这是系统的头文件路径
+                "./cJSON"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-x64",
+            "configurationProvider": "ms-vscode.cpptools"
+        }
+    ],
+    "version": 4
+}
