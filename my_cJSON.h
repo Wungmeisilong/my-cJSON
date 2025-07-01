@@ -57,6 +57,8 @@ extern char *PrintUnformatted(cJSON *item);
 /* Render a cJSON entity to text using a buffered strategy. prebuffer is a guess at the final size. guessing well reduces reallocation. fmt=0 gives unformatted, =1 gives formatted */
 /*使用缓冲策略将cJSON对象渲染为文本格式。prebuffer是对最终大小的猜测，猜测得好可以减少重新分配。fmt=0表示未格式化，=1表示格式化*/
 extern char *cJSON_PrintBuffered(cJSON *item, int prebuffer, int fmt);
+
+
 #ifdef __cplusplus
 }
 #endif
