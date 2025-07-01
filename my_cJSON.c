@@ -3,30 +3,8 @@
 #include <stdlib.h> //malloc, free
 #include <string.h> //memset
 
-static const char *ep;
-
-const char *cJSON_GetErrorPtr(void) {return ep;};
-
-static char cJSON_strcasecmp(const char *s1,const char *s2)
-{
-    if(!s1) return (s1==s2)?0:1; if(!s2) return 1;
-    for(; tolower(*s1) == tolobwer(*s2); ++s1,++s2) if(*s1 == 0) return 0;
-    return tolower(*(const unsigned char *)s1) -tolower(*(const unsigned char *)s2);
-}
-
 static void *(*cJSON_malloc)(size_t sz) = malloc;
 static void (*cJSON_free)(void *ptr) = free;
-
-static char *cJSON_strdup(const char* str)
-{
-    size_t len;
-    char* copy;
-
-    len = strlen(str) + 1;
-    if(!(copy = (char*)malloc(len))) return 0;
-    memcpy(copy,str,len);
-    return copy;
-}
 
 void cJSON_InitHooks(cJSON_Hooks* hooks)
 {
@@ -42,6 +20,7 @@ void cJSON_InitHooks(cJSON_Hooks* hooks)
 }
 
 /* Internal constructor. */
+/*内部构造函数*/
 static cJSON *cJSON_New_Item(void){
     /*申请cJSON大小的空间*/
     cJSON* node = (cJSON*)cJSON_malloc(sizeof(cJSON));
@@ -57,26 +36,11 @@ void cJSON_Delete(cJSON *c)
     cJSON *next;
     while(c)
     {
-        next = c->next;
-        if
+        next = c->next; //保存下一个节点的指针
+        if(!(c->type&cJSON_IsReference) && c->child) cJSON_Delete(c->child);
+        if(!(c->type&cJSON_IsReference) && c->valuestring) cJSON_free(c->valuestring);
+        if(!(c->type&cJSON_IsReference) && c->string) cJSON_free(c->string);
+        cJSON_free(c);
+        c = next; //继续遍历下一个节点    
     }
 }
-/* Parser core - when encountering text, process appropriately. */
-static const char *parse_value(cJSON *item,const char *value)
-{
-
-}
-
-
-/* Parse an object - create a new root, and populate. */
-/*解析一个对象 - 创建一个新的根，并填充。*/
-cJSON *cJSON_parseWithOpts(const char *value,const char **return_parse_end, int require_unll_treminated)
-{
-    const char *end = 0;
-    cJSON *c = cJSON_New_Item();
-    eq = 0;
-    if(!c) return 0;
-    end = parse_value(c,skip(value))
-}
-
-cJSON *cJSON_print(const char *value){ return cJSON_parseWithOpts(value,0,0); }
