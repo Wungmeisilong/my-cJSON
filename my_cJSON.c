@@ -105,3 +105,30 @@ static char *parse_number(cJSON *item, const char *num)
 static int pow2gt (int x) { --x;    x|=x>>1;    x|=x>>2;    x|=x>>4;    x|=x>>8;    x|=x>>16;    return x+1; }
 
 typedef struct {char *buffer; int length; int offset; } printbuffer;
+
+/*缓冲区管理函数，确保动态缓冲区有足够的空间容纳新数据*/
+static char* ensure(printbuffer *p, int needed)
+{
+    char *newbuffer;
+    int newsize;
+    if(!p || !p->buffer) return 0;/*空指针检查*/
+    needed += p->offset;    // 当前偏移量 + 需要空间 = 最小所需总空间
+    if(needed <= p->length) return p->buffer + p->offset;   // 直接返回当前写入位置
+    
+    newsize = pow2gt(needed);   /*计算新数据的空间大小（2的次方）*/
+    newbuffer = (char*)cJSON_malloc(newsize);
+    if(!newbuffer) {cJSON_free(p->buffer); p->length = 0; p->buffer = 0; return 0;}
+    if(newbuffer) memcpy(newbuffer, p->buffer, p->length);
+    cJSON_free(p->buffer);
+    p->length = newsize;
+    p->buffer = newbuffer;
+    return newbuffer + p->offset;
+}
+
+static int update(printbuffer)
+{
+    char *str;
+    if(!p || !p->buffer) return 0;
+    str = p->buffer + p->offset;
+    return p->offset + strlen(str);
+}
