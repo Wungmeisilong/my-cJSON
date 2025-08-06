@@ -6,3 +6,7 @@
 - 再写字符串处理、数字解析等基础工具函数（如 cJSON_strdup、cJSON_strcasecmp、parse_number）。
 - 然后实现 JSON 解析相关（parse_value、parse_object、parse_array、parse_string）。
 - 最后实现 JSON 生成（print_value、print_object、print_array、print_string）。
+
+
+判断两个浮点型数值差值很小，且在整数范围内。
+(fabs(((double)item->valueint)-d)<=DBL_EPSILON && d<=INT_MAX && d>=INT_MIN)

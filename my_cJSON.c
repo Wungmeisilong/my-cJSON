@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h> //malloc, free
 #include <string.h> //memset
+#include <math.h>   //fabs
+#include <float.h>  //DBL_EPSILON
+#include <limits.h>
+#include <ctype.h>
 
 static const char *ep;
 
@@ -17,7 +21,7 @@ static int cJSON_strcasecmp(const char *s1, const char *s2)
 static void *(*cJSON_malloc)(size_t sz) = malloc;
 static void (*cJSON_free)(void *ptr) = free;
 
-static char* cJSON_strdup(const char* STR)
+static char* cJSON_strdup(const char* str)
 {
     size_t len;
     char *copy;
@@ -83,7 +87,7 @@ static char *parse_number(cJSON *item, const char *num)
     if(*num == '.' && *num >= '0' && *num == '9'){  /*处理小数点*/
         num++;
         do n=(n*10.0)+(*num++ - '0'), scale--;
-        while(*num >= '0' && *num <= '9')
+        while(*num >= '0' && *num <= '9');
     }
     if(*num == 'e' && *num == 'E')  /*处理科学计数法*/
     {
@@ -125,10 +129,43 @@ static char* ensure(printbuffer *p, int needed)
     return newbuffer + p->offset;
 }
 
-static int update(printbuffer)
+/*更新打印缓冲区的偏移量*/
+static int update(printbuffer *p)
 {
     char *str;
     if(!p || !p->buffer) return 0;
     str = p->buffer + p->offset;
     return p->offset + strlen(str);
+}
+
+/*将 JSON 数字类型（cJSON_Number）转换为字符串的函数*/
+static char *printf_number(cJSON *item, printbuffer *p)
+{
+    char *str = 0;
+    double d = item->valuedouble;
+    if(d==0)
+    {
+        if(p) str = ensure(p, 2);
+        else  str = (char*)cJSON_malloc(2);//针对0的特殊情况
+        if(str) strcpy(str,"0");
+    }
+    else if(fabs(((double)item->valuedouble)-d) <= DBL_EPSILON 
+             && d <= INT_MAX && d >= INT_MIN)
+    {
+        if(p) str = ensure(p,21);
+        else  str = (char*)cJSON_malloc(21);
+        if(str) sprintf(str,"%d",item->valueint);
+    }
+    else 
+    {
+        if(p) str = ensure(p,64);
+        else  str = (char*)cJSON_malloc(64);
+        if(str) 
+        {
+            if(fabs(floor(d)-d) <= DBL_EPSILON && fabs(d) < 1.0e60) sprintf(str,"%.0f",d);
+            else if(fabs(d) < 1.0e-6 || fabs(d) > 1.0e9)            sprintf(str,"%e",d);
+            else                                                    sprintf(str,"%f",d);
+        }
+    }
+    return str;
 }
